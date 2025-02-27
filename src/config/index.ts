@@ -65,17 +65,6 @@ export function getTokenForProvider(
       return (
         character.settings?.secrets?.OPENAI_API_KEY || settings.OPENAI_API_KEY
       );
-    case ModelProviderName.LLAMACLOUD:
-      return (
-        character.settings?.secrets?.LLAMACLOUD_API_KEY ||
-        settings.LLAMACLOUD_API_KEY ||
-        character.settings?.secrets?.TOGETHER_API_KEY ||
-        settings.TOGETHER_API_KEY ||
-        character.settings?.secrets?.XAI_API_KEY ||
-        settings.XAI_API_KEY ||
-        character.settings?.secrets?.OPENAI_API_KEY ||
-        settings.OPENAI_API_KEY
-      );
     case ModelProviderName.ANTHROPIC:
       return (
         character.settings?.secrets?.ANTHROPIC_API_KEY ||
