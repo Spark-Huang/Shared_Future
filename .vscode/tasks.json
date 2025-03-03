@@ -1,0 +1,20 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+	  {
+		"type": "shell",
+		"command": "pnpm run start",
+		"label": "pnpm: start",
+		"problemMatcher": ["$tsc"],
+		"detail": "tsc && node --loader ts-node/esm src/index.ts"
+	  },
+	  {
+		"type": "shell",
+		"command": "pnpm run build",
+		"label": "pnpm: build",
+		"group": "build",
+		"problemMatcher": ["$tsc"]
+	  }
+	]
+  }
+  
