@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts",
     "start": "tsc && node --loader ts-node/esm src/index.ts",
+    "dev": "nodemon --watch 'src/**/*.ts' --exec 'node --loader ts-node/esm' src/index.ts",
     "clean": "./scripts/clean.sh",
     "start:service:all": "pm2 start pnpm --name=\"all\" --restart-delay=3000 --max-restarts=10 -- run start:all",
     "stop:service:all": "pm2 stop all"
@@ -26,6 +27,7 @@
     "@elizaos/plugin-starknet": "0.1.9",
     "@tavily/core": "0.0.2",
     "amqplib": "0.10.5",
+    "axios": "^1.8.1",
     "better-sqlite3": "11.5.0",
     "fs": "0.0.1-security",
     "net": "1.0.2",
@@ -45,6 +47,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.13.5",
+    "nodemon": "^3.1.9",
     "pm2": "5.4.3",
     "ts-node": "10.9.2",
     "tsup": "8.3.5",
