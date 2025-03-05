@@ -1,4 +1,4 @@
-import { settings } from "@elizaos/core";
+import { settings,Character } from "@elizaos/core";
 import readline from "readline";
 import { isAxiosError } from 'axios';
 
@@ -14,23 +14,37 @@ rl.on("SIGINT", () => {
   process.exit(0);
 });
 
-async function handleUserInput(input: string, agentId: string) {
+let conversationHistory: Array<{role: string, content: string}> = [];
+let isFirstInteraction = true;
+
+async function handleUserInput(input: string, character: Character) {
   if (input.toLowerCase() === "exit") {
     rl.close();
     process.exit(0);
   }
-
   try {
-    const apiBase = process.env.OPENAI_API_BASE;
+    const serverPort = parseInt(settings.SERVER_PORT || "3000");
+    const apiBase = process.env.OPENAI_API_BASE || "https://api.openai.com/v1";
+    console.log("Using API Base:", apiBase);
+    
+    if (isFirstInteraction) {
+      conversationHistory = [{
+        role: "system",
+        content: character.system
+      }];
+      isFirstInteraction = false;
+    }
+    
+    conversationHistory.push({
+      role: "user",
+      content: input
+    });
 
     const response = await axios.post(
       `${apiBase}/chat/completions`,
       {
         model: "Qwen/QwQ-32B-Preview",
-        messages: [{
-          role: "user",
-          content: input
-        }],
+        messages: conversationHistory,
         temperature: 0.7
       },
       {
@@ -45,32 +59,33 @@ async function handleUserInput(input: string, agentId: string) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.data;
+    const data = response.data;
     if (!data) {
       throw new Error('No data received from the API');
     }
 
-    const message = data.choices[0]?.message?.content;
-    if (message) {
-      console.log(`${agentId}: ${message}`);
+    try {
+      if (data.choices && data.choices[0]) {
+        const assistantMessage = data.choices[0].message;
+        conversationHistory.push(assistantMessage);
+        console.log(`${character.name}: ${assistantMessage.content}`);
+      } else {
+        console.error("Unexpected API response format:", data);
+      }
+    } catch (parseError) {
+      console.error("JSON Parse Error:", parseError);
+      console.error("Response data:", data);
     }
   } catch (error) {
-    console.error('Chat error:', error);
-    if (isAxiosError(error)) {
-      console.error('Axios error details:', {
-        status: error.response?.status,
-        data: error.response?.data,
-        message: error.message
-      });
-    }
+    console.error("Error fetching response:", error);
   }
 }
 
-export function startChat(characters: Array<{ name: string }>) {
+export function startChat(characters: Character[]) {
   function chat() {
-    const agentId = characters[0]?.name ?? "Agent";
+    // const agentId = characters[0]?.name ?? "Agent";
     rl.question("You: ", async (input) => {
-      await handleUserInput(input, agentId);
+      await handleUserInput(input, characters[0]);
       if (input.toLowerCase() !== "exit") {
         chat(); // Loop back to ask another question
       }
